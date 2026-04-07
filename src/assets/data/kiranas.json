@@ -1,0 +1,10 @@
+[
+  { "id": "K1", "shopName": "Sai Grocery", "owner": "Mahesh", "phone": "9000100001", "location": 10 },
+  { "id": "K2", "shopName": "Jai Mart", "owner": "Priya", "phone": "9000100002", "location": 22 },
+  { "id": "K3", "shopName": "Om Stores", "owner": "Suresh", "phone": "9000100003", "location": 40 },
+  { "id": "K4", "shopName": "Devi Provisions", "owner": "Anita", "phone": "9000100004", "location": 55 },
+  { "id": "K5", "shopName": "Balaji Shop", "owner": "Ravi", "phone": "9000100005", "location": 65 },
+  { "id": "K6", "shopName": "Guru Traders", "owner": "Deepa", "phone": "9000100006", "location": 78 },
+  { "id": "K7", "shopName": "Mahalaxmi Store", "owner": "Kiran", "phone": "9000100007", "location": 92 },
+  { "id": "K8", "shopName": "Shree Bazaar", "owner": "Pooja", "phone": "9000100008", "location": 48 }
+]

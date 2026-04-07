@@ -1,0 +1,45 @@
+.app-shell {
+  min-height: 100vh;
+  background-color: #f4f7f5;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #dbe3dc;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 20px;
+  color: #1f3426;
+}
+
+.nav-links {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #2d4a35;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  background-color: #eaf4ee;
+}
+
+.nav-links a.active-link {
+  background-color: #2f7a4e;
+  color: #ffffff;
+}
+
+.page-content {
+  padding: 24px;
+}

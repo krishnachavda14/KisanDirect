@@ -1,0 +1,8 @@
+[
+  { "id": "P1", "name": "Tomato", "category": "Vegetable" },
+  { "id": "P2", "name": "Onion", "category": "Vegetable" },
+  { "id": "P3", "name": "Potato", "category": "Vegetable" },
+  { "id": "P4", "name": "Banana", "category": "Fruit" },
+  { "id": "P5", "name": "Apple", "category": "Fruit" },
+  { "id": "P6", "name": "Rice", "category": "Grain" }
+]

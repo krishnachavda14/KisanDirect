@@ -1,0 +1,8 @@
+[
+    { "id": "F1", "name": "Ramesh Patil", "phone": "9876543210", "location": 5 },
+    { "id": "F2", "name": "Sunita Devi", "phone": "9123456789", "location": 18 },
+    { "id": "F3", "name": "Arjun Rao", "phone": "9988776655", "location": 35 },
+    { "id": "F4", "name": "Lakshmi Naik", "phone": "9871234567", "location": 52 },
+    { "id": "F5", "name": "Bhim Yadav", "phone": "9765432100", "location": 70 },
+    { "id": "F6", "name": "Meena Sharma", "phone": "9654321098", "location": 88 }
+  ]
