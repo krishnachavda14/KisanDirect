@@ -1,16 +1,134 @@
 .card {
-  background-color: #ffffff;
+  background: var(--surface);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-top: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 24px rgba(40, 88, 61, 0.06);
+}
+
+.stock-banner {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #f2bea8;
+  background: linear-gradient(120deg, #fff4ea, #fffaf5);
+  color: #9a3d11;
+  font-size: 14px;
+  box-shadow: 0 8px 18px rgba(154, 61, 17, 0.08);
+}
+
+h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 27px;
+  letter-spacing: -0.3px;
+}
+
+.indicator-list {
+  display: grid;
+  gap: 10px;
+}
+
+.indicator-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #d5e7db;
+  border-radius: 12px;
+  padding: 10px 12px;
+  gap: 12px;
+  background: #f7fcf9;
+}
+
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.indicator-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 10px;
+}
+
+.dot-green {
+  background: #2f9e5a;
+}
+
+.dot-yellow {
+  background: #db8d26;
+}
+
+.dot-red {
+  background: #d64545;
+}
+
+.muted {
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.legend {
+  margin: 12px 0 0;
+}
+
+.result-list {
+  display: grid;
+  gap: 8px;
+}
+
+.result-row {
+  padding: 10px 12px;
+  border-radius: 8px;
   border: 1px solid #dbe3dc;
-  border-radius: 10px;
-  padding: 20px;
+  font-size: 14px;
 }
 
-h2 {
-  margin: 0 0 8px;
-  color: #1f3426;
+.result-row.accepted {
+  background: #ecfdf3;
+  border-color: #abefc6;
+  color: #067647;
 }
 
-p {
-  margin: 0;
-  color: #486050;
+.result-row.failed {
+  background: #fef3f2;
+  border-color: #fecdca;
+  color: #b42318;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  border-bottom: 1px solid #dbe8df;
+  padding: 11px 8px;
+  font-size: 14px;
+}
+
+th {
+  color: #315744;
+  font-weight: 600;
+}
+
+tbody tr:hover {
+  background: #f1faf4;
 }

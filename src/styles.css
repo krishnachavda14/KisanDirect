@@ -1,4 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-a: #ecf5ee;
+  --bg-b: #f7fbf7;
+  --bg-c: #dbeee2;
+  --surface: rgba(255, 255, 255, 0.74);
+  --surface-strong: rgba(255, 255, 255, 0.9);
+  --stroke: #c8ddd0;
+  --text: #1d3529;
+  --text-soft: #557060;
+  --green-700: #2d7850;
+  --green-800: #235d3f;
+  --mint-100: #e8f6ed;
+}
 
 * {
   box-sizing: border-box;
@@ -6,5 +20,11 @@
 
 body {
   margin: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 12% 8%, #dff2e6 0%, rgba(223, 242, 230, 0) 36%),
+    radial-gradient(circle at 88% 6%, #e5f7ec 0%, rgba(229, 247, 236, 0) 34%),
+    linear-gradient(160deg, var(--bg-a), var(--bg-b) 55%, var(--bg-c));
+  min-height: 100vh;
 }

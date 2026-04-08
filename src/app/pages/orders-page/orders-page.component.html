@@ -1,4 +1,116 @@
-<section class="card">
-  <h2>Orders</h2>
-  <p>View and manage kirana orders from this page.</p>
+<div class="orders-layout">
+  <section class="panel list-panel">
+    <header class="toolbar">
+      <div class="filters">
+        <button
+          type="button"
+          class="filter-btn"
+          *ngFor="let f of statusFilters"
+          [class.active]="activeFilter === f.key"
+          (click)="setFilter(f.key)"
+        >
+          {{ f.label }}
+        </button>
+      </div>
+      <button type="button" class="btn primary" (click)="openPlaceOrderForm()">Place New Order</button>
+    </header>
+
+    <p class="hint" *ngIf="placeOrderMessage && !showPlaceOrderForm">{{ placeOrderMessage }}</p>
+
+    <div class="table-wrap" *ngIf="filteredOrders().length > 0; else emptyList">
+      <table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Kirana</th>
+            <th>Delivery</th>
+            <th>Status</th>
+            <th>Items</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let o of filteredOrders()"
+            (click)="selectOrder(o)"
+            [class.selected-row]="selectedOrder?.id === o.id"
+          >
+            <td>{{ o.id }}</td>
+            <td>{{ o.kiranaName }}</td>
+            <td>{{ o.deliveryDate }}</td>
+            <td>
+              <span class="status" [class]="'st-' + o.status">{{ o.status | titlecase }}</span>
+            </td>
+            <td>{{ o.lineItems.length }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #emptyList>
+      <p class="muted">No orders in this filter.</p>
+    </ng-template>
+  </section>
+
+  <section class="panel detail-panel" *ngIf="selectedOrder as order">
+    <div class="detail-header">
+      <h2>Order {{ order.id }}</h2>
+      <button type="button" class="btn ghost" (click)="closeDetail()">Close</button>
+    </div>
+
+    <div class="detail-grid">
+      <div><span class="k">Kirana</span> {{ order.kiranaName }}</div>
+      <div><span class="k">Delivery date</span> {{ order.deliveryDate }}</div>
+      <div class="full"><span class="k">Status</span> {{ order.status | titlecase }}</div>
+      <div class="full" *ngIf="order.notes"><span class="k">Notes</span> {{ order.notes }}</div>
+    </div>
+
+    <h3>Items</h3>
+    <ul class="lines">
+      <li *ngFor="let line of order.lineItems">
+        {{ line.productName }} — {{ line.quantityKg }} kg
+      </li>
+    </ul>
+
+    <div class="fulfill-actions" *ngIf="order.status === 'pending'">
+      <button type="button" class="btn primary" [disabled]="fulfillBusy" (click)="fulfillSelected()">
+        {{ fulfillBusy ? 'Fulfilling…' : 'Fulfill Order' }}
+      </button>
+      <p class="muted small" *ngIf="fulfillMessage">{{ fulfillMessage }}</p>
+      <p class="muted small">
+        Fulfillment uses the <strong>order delivery date</strong> as stock cutoff and ignores future-dated inventory.
+      </p>
+    </div>
+
+    <div *ngIf="order.fulfillment as snap" class="fulfillment-block">
+      <h3>Fulfillment plan</h3>
+      <p class="muted small" *ngIf="order.status === 'partially_fulfilled'">
+        Shortfall remains where today's total stock could not cover the order.
+      </p>
+
+      <div *ngFor="let dl of snap.detailLines" class="line-block">
+        <h4>{{ dl.productName }} (requested {{ dl.requestedKg }} kg)</h4>
+        <p class="shortfall" *ngIf="dl.shortfallKg > 0">
+          Shortfall: <strong>{{ dl.shortfallKg }} kg</strong>
+        </p>
+        <ul class="alloc-list" *ngIf="dl.allocations.length > 0">
+          <li *ngFor="let a of dl.allocations">
+            <strong>{{ a.farmerName }}</strong> — {{ a.quantityKg }} kg (farmer at {{ a.farmerLocationKm }} km,
+            <strong>{{ a.distanceKm }} km</strong> from kirana)
+          </li>
+        </ul>
+        <p class="muted small" *ngIf="dl.allocations.length === 0 && dl.requestedKg > 0">
+          No stock found for this product in today's inventory.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="place-order-sheet" *ngIf="showPlaceOrderForm">
+  <div class="sheet-inner card">
+    <div class="sheet-head">
+      <h2>Place New Order</h2>
+      <button type="button" class="btn ghost" (click)="closePlaceOrderForm()">Cancel</button>
+    </div>
+    <app-dynamic-form (formSubmitted)="onOrderSubmit($event)" [placeOrderBusy]="placeOrderBusy" />
+  </div>
 </section>

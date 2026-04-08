@@ -1,4 +1,53 @@
-<section class="card">
-  <h2>Inventory</h2>
-  <p>Track farmer stock updates and available produce here.</p>
+<app-dynamic-form [arrayStartIndex]="nextEntryNumber" (formSubmitted)="onInventorySubmit($event)" />
+
+<section class="card" *ngIf="todaysInventory.length > 0">
+  <h3>Today's Inventory (In Memory)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Farmer</th>
+          <th>Product</th>
+          <th>Quantity (kg)</th>
+          <th>Price / kg</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of todaysInventory">
+          <td>{{ item.date }}</td>
+          <td>{{ item.farmerName }}</td>
+          <td>{{ item.productName }}</td>
+          <td>{{ item.quantityKg }}</td>
+          <td>{{ item.pricePerKg }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card" *ngIf="productIndicators.length > 0">
+  <h3>Product Health</h3>
+  <p class="muted" *ngIf="!isActiveDateToday()">
+    Showing stock for {{ activeInventoryDate }} (this is different from system today).
+  </p>
+  <div class="indicator-list">
+    <div class="indicator-row" *ngFor="let item of productIndicators">
+      <div class="product-cell">
+        <span class="dot" [class]="'dot-' + item.level"></span>
+        <span>{{ item.productName }}</span>
+      </div>
+      <div class="indicator-meta">
+        <strong>{{ item.totalQuantityKg }} kg</strong>
+        <span class="muted">{{ stockLevelLabel(item.level) }}</span>
+      </div>
+    </div>
+  </div>
+  <p class="muted legend">Green: >100 kg, Yellow: 20-100 kg, Red: below 20 kg</p>
+</section>
+
+<section class="stock-banner" *ngIf="lowStockProductsCount > 0">
+  <strong>{{ lowStockProductsCount }}</strong>
+  products are running low for
+  <strong>{{ activeInventoryDate }}</strong>.
 </section>

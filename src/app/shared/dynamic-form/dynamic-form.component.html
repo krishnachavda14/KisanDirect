@@ -1,0 +1,120 @@
+<div class="dynamic-form" *ngIf="config">
+  <div class="card">
+    <h2 class="title">{{ config.title }}</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="fields">
+        <ng-container *ngFor="let field of config.fields">
+          <!-- Array Field -->
+          <div *ngIf="field.type === 'array'" class="field array-field">
+            <div class="array-header">
+              <label class="label">{{ field.label }}</label>
+              <button type="button" class="btn secondary" (click)="addArrayItem(field)">
+                {{ field.addButtonText || 'Add' }}
+              </button>
+            </div>
+
+            <div class="array-items" [formArrayName]="field.key">
+              <div
+                class="array-item"
+                *ngFor="let itemGroup of getArray(field.key).controls; let i = index"
+                [formGroupName]="i"
+              >
+                <div class="array-item-top">
+                  <div class="array-item-title">
+                    {{ field.itemLabel || 'Item' }} {{ i + arrayStartIndex }}
+                  </div>
+                  <button
+                    type="button"
+                    class="btn danger"
+                    (click)="removeArrayItem(field, i)"
+                  >
+                    {{ field.removeButtonText || 'Remove' }}
+                  </button>
+                </div>
+
+                <div class="grid">
+                  <ng-container *ngFor="let child of field.fields">
+                    <div class="field">
+                      <label class="label" [for]="field.key + '_' + i + '_' + child.key">
+                        {{ child.label }}
+                      </label>
+
+                      <!-- child: select -->
+                      <ng-container *ngIf="child.type === 'select'; else childInput">
+                        <select
+                          class="control"
+                          [id]="field.key + '_' + i + '_' + child.key"
+                          [formControlName]="child.key"
+                        >
+                          <option value="">{{ child.placeholder || 'Select' }}</option>
+                          <option
+                            *ngFor="let opt of (selectOptions$(child.options) | async)"
+                            [value]="opt.value"
+                          >
+                            {{ opt.label }}
+                          </option>
+                        </select>
+                      </ng-container>
+
+                      <!-- child: input -->
+                      <ng-template #childInput>
+                        <input
+                          class="control"
+                          [id]="field.key + '_' + i + '_' + child.key"
+                          [type]="child.type"
+                          [placeholder]="child.placeholder || ''"
+                          [formControlName]="child.key"
+                        />
+                      </ng-template>
+
+                      <ng-container *ngIf="fieldError(child, asFormGroup(itemGroup)) as err">
+                        <div class="error">{{ err }}</div>
+                      </ng-container>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Normal Field -->
+          <div *ngIf="field.type !== 'array'" class="field">
+            <label class="label" [for]="field.key">{{ field.label }}</label>
+
+            <ng-container *ngIf="field.type === 'select'; else normalInput">
+              <select class="control" [id]="field.key" [formControlName]="field.key">
+                <option value="">{{ field.placeholder || 'Select' }}</option>
+                <option
+                  *ngFor="let opt of (selectOptions$(field.options) | async)"
+                  [value]="opt.value"
+                >
+                  {{ opt.label }}
+                </option>
+              </select>
+            </ng-container>
+
+            <ng-template #normalInput>
+              <input
+                class="control"
+                [id]="field.key"
+                [type]="field.type"
+                [placeholder]="field.placeholder || ''"
+                [formControlName]="field.key"
+              />
+            </ng-template>
+
+            <ng-container *ngIf="fieldError(field) as err">
+              <div class="error">{{ err }}</div>
+            </ng-container>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary" [disabled]="placeOrderBusy">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
