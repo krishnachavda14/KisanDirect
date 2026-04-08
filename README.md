@@ -1,8 +1,11 @@
 # README
 
 # Steps to Run
+
 cd Assignment/
+
 npm install  
+
 ng serve  
 
 ---
