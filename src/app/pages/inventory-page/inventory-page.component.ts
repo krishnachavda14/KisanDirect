@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
 import { DynamicFormConfigService } from '../../shared/dynamic-form/dynamic-form-config.service';
+import { AlertDialogService } from '../../shared/alert-dialog/alert-dialog.service';
 import { InventoryStoreService } from '../../services/inventory-store.service';
 import { InventoryEntry } from '../../models/inventory-entry.model';
 import { inventoryFormConfig } from '../../shared/form-configs/inventory-form.config';
@@ -57,7 +58,8 @@ export class InventoryPageComponent implements OnDestroy {
   constructor(
     private readonly configService: DynamicFormConfigService,
     private readonly http: HttpClient,
-    private readonly inventoryStore: InventoryStoreService
+    private readonly inventoryStore: InventoryStoreService,
+    private readonly alertDialogService: AlertDialogService
   ) {
     this.configService.setConfig(inventoryFormConfig);
     this.loadMasterData();
@@ -80,7 +82,7 @@ export class InventoryPageComponent implements OnDestroy {
     this.configService.clearConfig();
   }
 
-  onInventorySubmit(event: InventoryFormSubmit): void {
+  async onInventorySubmit(event: InventoryFormSubmit): Promise<void> {
     const date = this.normalizeDate(event.value.date);
     const entries = event.value.entries ?? [];
     const acceptedEntries: InventoryEntry[] = [];
@@ -127,6 +129,9 @@ export class InventoryPageComponent implements OnDestroy {
       this.nextEntryNumber += acceptedEntries.length;
       this.dynamicForm?.resetForm({ date: this.activeInventoryDate });
       this.refreshTodayView(this.inventoryStore.snapshot());
+      const itemLabel = acceptedEntries.length === 1 ? 'item' : 'items';
+      const message = `Farmer successfully added ${acceptedEntries.length} ${itemLabel}.`;
+      await this.alertDialogService.alert('Success', message);
     }
   }
 

@@ -19,6 +19,17 @@
   box-shadow: 0 8px 18px rgba(154, 61, 17, 0.08);
 }
 
+.success-banner {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #abefc6;
+  background: linear-gradient(120deg, #ecfdf3, #f6fff9);
+  color: #067647;
+  font-size: 14px;
+  box-shadow: 0 8px 18px rgba(6, 118, 71, 0.08);
+}
+
 h3 {
   margin: 0 0 10px;
   color: var(--text);

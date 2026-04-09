@@ -1,4 +1,4 @@
-export type ValidatorName = 'required' | 'min';
+export type ValidatorName = 'required' | 'min' | 'max';
 
 export type FieldType = 'text' | 'number' | 'date' | 'select' | 'array';
 

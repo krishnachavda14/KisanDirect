@@ -8,7 +8,10 @@
           <!-- Array Field -->
           <div *ngIf="field.type === 'array'" class="field array-field">
             <div class="array-header">
-              <label class="label">{{ field.label }}</label>
+              <label class="label">
+                {{ field.label }}
+                <span class="required-asterisk" *ngIf="isFieldRequired(field)">*</span>
+              </label>
               <button type="button" class="btn secondary" (click)="addArrayItem(field)">
                 {{ field.addButtonText || 'Add' }}
               </button>
@@ -38,6 +41,7 @@
                     <div class="field">
                       <label class="label" [for]="field.key + '_' + i + '_' + child.key">
                         {{ child.label }}
+                        <span class="required-asterisk" *ngIf="isFieldRequired(child)">*</span>
                       </label>
 
                       <!-- child: select -->
@@ -63,6 +67,7 @@
                           class="control"
                           [id]="field.key + '_' + i + '_' + child.key"
                           [type]="child.type"
+                          [attr.min]="inputMin(child.type)"
                           [placeholder]="child.placeholder || ''"
                           [formControlName]="child.key"
                         />
@@ -80,7 +85,10 @@
 
           <!-- Normal Field -->
           <div *ngIf="field.type !== 'array'" class="field">
-            <label class="label" [for]="field.key">{{ field.label }}</label>
+            <label class="label" [for]="field.key">
+              {{ field.label }}
+              <span class="required-asterisk" *ngIf="isFieldRequired(field)">*</span>
+            </label>
 
             <ng-container *ngIf="field.type === 'select'; else normalInput">
               <select class="control" [id]="field.key" [formControlName]="field.key">
@@ -99,6 +107,7 @@
                 class="control"
                 [id]="field.key"
                 [type]="field.type"
+                [attr.min]="inputMin(field.type)"
                 [placeholder]="field.placeholder || ''"
                 [formControlName]="field.key"
               />
@@ -111,7 +120,7 @@
         </ng-container>
       </div>
 
-      <div class="actions">
+      <div class="actions" *ngIf="hasArrayItems()">
         <button type="submit" class="btn primary" [disabled]="placeOrderBusy">Submit</button>
       </div>
     </form>

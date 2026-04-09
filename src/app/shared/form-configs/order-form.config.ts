@@ -63,7 +63,8 @@ export const orderFormConfig: DynamicFormConfig = {
           placeholder: 'e.g. 15',
           validators: [
             { name: 'required', message: 'Quantity is required.' },
-            { name: 'min', value: 1, message: 'Quantity must be at least 1 kg.' }
+            { name: 'min', value: 1, message: 'Quantity must be at least 1 kg.' },
+            { name: 'max', value: 1000, message: 'Quantity cannot exceed 1000 kg.' }
           ]
         }
       ]

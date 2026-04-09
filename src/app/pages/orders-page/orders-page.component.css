@@ -1,8 +1,9 @@
 .orders-layout {
   display: grid;
-  grid-template-columns: 1fr minmax(320px, 400px);
+  grid-template-columns: 1fr;
   gap: 16px;
   align-items: start;
+  width: 100%;
 }
 
 .panel {

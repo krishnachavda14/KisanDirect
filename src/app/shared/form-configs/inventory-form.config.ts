@@ -56,7 +56,8 @@ export const inventoryFormConfig: DynamicFormConfig = {
           placeholder: 'e.g. 25',
           validators: [
             { name: 'required', message: 'Quantity is required.' },
-            { name: 'min', value: 1, message: 'Quantity must be at least 1 kg.' }
+            { name: 'min', value: 1, message: 'Quantity must be at least 1 kg.' },
+            { name: 'max', value: 1000, message: 'Quantity cannot exceed 1000 kg.' }
           ]
         },
         {
@@ -66,7 +67,8 @@ export const inventoryFormConfig: DynamicFormConfig = {
           placeholder: 'e.g. 30',
           validators: [
             { name: 'required', message: 'Price per kg is required.' },
-            { name: 'min', value: 1, message: 'Price must be at least ₹1.' }
+            { name: 'min', value: 1, message: 'Price must be at least ₹1.' },
+            { name: 'max', value: 10000, message: 'Price cannot exceed ₹10,000 per kg.' }
           ]
         }
       ]
