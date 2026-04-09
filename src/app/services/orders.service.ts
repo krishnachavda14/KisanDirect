@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
-import { Order, OrderLineItem, OrderStatus } from '../models/order.model';
+import { Order, OrderLineItem, OrderStatus, OrderAssignmentSnapshot } from '../models/order.model';
 
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
@@ -20,6 +20,14 @@ export class OrdersService {
 
   getById(id: string): Order | undefined {
     return this.orders.find((o) => o.id === id);
+  }
+
+  applyAssignment(orderId: string, assignment: OrderAssignmentSnapshot): void {
+    const order = this.orders.find((o) => o.id === orderId);
+    if (!order) return;
+    order.status = 'assigned';
+    order.assignment = assignment;
+    this.emit();
   }
 
   filterByStatus(filter: OrderStatus | 'fulfilled_all'): Order[] {
@@ -51,7 +59,7 @@ export class OrdersService {
     return order;
   }
 
-  applyFulfillment(orderId: string, status: 'fulfilled' | 'partially_fulfilled', fulfillment: Order['fulfillment']): void {
+  applyFulfillment(orderId: string, status: 'fulfilled' | 'partially_fulfilled' | 'cancelled', fulfillment: Order['fulfillment']): void {
     const order = this.orders.find((o) => o.id === orderId);
     if (!order) return;
     order.status = status;
@@ -73,18 +81,6 @@ export class OrdersService {
         notes: 'Bulk tomato',
         status: 'pending',
         lineItems: [{ productId: 'P1', productName: 'Tomato', quantityKg: 40 }]
-      },
-      {
-        id: 'O-demo-2',
-        kiranaId: 'K1',
-        kiranaName: 'Sai Grocery',
-        deliveryDate: this.todayYmd(),
-        notes: '',
-        status: 'assigned',
-        lineItems: [
-          { productId: 'P2', productName: 'Onion', quantityKg: 15 },
-          { productId: 'P3', productName: 'Potato', quantityKg: 10 }
-        ]
       },
       {
         id: 'O-demo-3',

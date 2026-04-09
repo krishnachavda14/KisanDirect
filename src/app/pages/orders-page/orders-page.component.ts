@@ -47,7 +47,9 @@ export class OrdersPageComponent implements OnDestroy {
 
   showPlaceOrderForm = false;
   placeOrderMessage: string | null = null;
+  assignMessage: string | null = null;
   fulfillMessage: string | null = null;
+  assignBusy = false;
   fulfillBusy = false;
   placeOrderBusy = false;
 
@@ -94,6 +96,7 @@ export class OrdersPageComponent implements OnDestroy {
 
   selectOrder(order: Order): void {
     this.selectedOrder = order;
+    this.assignMessage = null;
     this.fulfillMessage = null;
   }
 
@@ -150,8 +153,40 @@ export class OrdersPageComponent implements OnDestroy {
     }
   }
 
-  async fulfillSelected(): Promise<void> {
+  async assignFarmers(): Promise<void> {
     if (!this.selectedOrder || this.selectedOrder.status !== 'pending') return;
+
+    this.assignBusy = true;
+    this.assignMessage = null;
+
+    try {
+      const result = await this.fulfillmentService.assignFarmersToOrder(this.selectedOrder.id);
+
+      if (result.error) {
+        this.assignMessage = result.error;
+      } else {
+        const updated = this.ordersService.getById(this.selectedOrder.id);
+        this.selectedOrder = updated ?? null;
+        
+        if (updated?.status === 'cancelled') {
+          this.assignMessage = 'No stock available for any product in this order. Order cancelled automatically.';
+          this.setFilter('cancelled');
+        } else if (updated?.status === 'assigned') {
+          this.assignMessage = 'Farmers assigned successfully. You can now fulfill the order.';
+          this.setFilter('assigned');
+        }
+      }
+    } catch (err) {
+      this.assignMessage = 'Assignment failed. Please try again.';
+      console.error('Assignment error:', err);
+    } finally {
+      this.assignBusy = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  async fulfillSelected(): Promise<void> {
+    if (!this.selectedOrder || this.selectedOrder.status !== 'assigned') return;
 
     this.fulfillBusy = true;
     this.fulfillMessage = null;
@@ -165,10 +200,16 @@ export class OrdersPageComponent implements OnDestroy {
         const updated = this.ordersService.getById(this.selectedOrder.id);
         this.selectedOrder = updated ?? null;
         const status = updated?.status;
-        this.fulfillMessage =
-          status === 'partially_fulfilled'
-            ? 'Order partially fulfilled — see shortfall below.'
-            : 'Order fully fulfilled.';
+        if (status === 'fulfilled') {
+          this.fulfillMessage = 'Order fully fulfilled.';
+          this.setFilter('fulfilled');
+        } else if (status === 'partially_fulfilled') {
+          this.fulfillMessage = 'Order partially fulfilled — see shortfall below.';
+          this.setFilter('fulfilled');
+        } else if (status === 'cancelled') {
+          this.fulfillMessage = 'Order cancelled — no stock available.';
+          this.setFilter('cancelled');
+        }
       }
     } catch (err) {
       this.fulfillMessage = 'Fulfillment failed. Please try again.';

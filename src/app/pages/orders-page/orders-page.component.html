@@ -71,19 +71,55 @@
     </ul>
 
     <div class="fulfill-actions" *ngIf="order.status === 'pending'">
+      <button type="button" class="btn primary" [disabled]="assignBusy" (click)="assignFarmers()">
+        {{ assignBusy ? 'Assigning…' : 'Assign Farmers' }}
+      </button>
+      <p class="muted small" *ngIf="assignMessage">{{ assignMessage }}</p>
+      <p class="muted small">
+        Farmer assignment uses the <strong>order delivery date</strong> as stock cutoff and selects nearest farmers by distance.
+      </p>
+    </div>
+
+    <div class="fulfill-actions" *ngIf="order.status === 'assigned'">
       <button type="button" class="btn primary" [disabled]="fulfillBusy" (click)="fulfillSelected()">
         {{ fulfillBusy ? 'Fulfilling…' : 'Fulfill Order' }}
       </button>
       <p class="muted small" *ngIf="fulfillMessage">{{ fulfillMessage }}</p>
       <p class="muted small">
-        Fulfillment uses the <strong>order delivery date</strong> as stock cutoff and ignores future-dated inventory.
+        This will deduct inventory and finalize the order.
       </p>
     </div>
 
+    <div *ngIf="order.status === 'assigned' && order.assignment as snap" class="assignment-block">
+      <h3>Farmer Assignment</h3>
+      <p class="muted small">
+        Assigned at {{ snap.allocatedAt | date: 'short' }}
+      </p>
+
+      <div *ngFor="let dl of snap.detailLines" class="line-block">
+        <h4>{{ dl.productName }} (requested {{ dl.requestedKg }} kg)</h4>
+        <p class="shortfall" *ngIf="dl.shortfallKg > 0">
+          Potential shortfall: <strong>{{ dl.shortfallKg }} kg</strong>
+        </p>
+        <ul class="alloc-list" *ngIf="dl.allocations.length > 0">
+          <li *ngFor="let a of dl.allocations">
+            <strong>{{ a.farmerName }}</strong> — {{ a.quantityKg }} kg (farmer at {{ a.farmerLocationKm }} km,
+            <strong>{{ a.distanceKm }} km</strong> from kirana)
+          </li>
+        </ul>
+        <p class="muted small" *ngIf="dl.allocations.length === 0 && dl.requestedKg > 0">
+          No farmers available for this product.
+        </p>
+      </div>
+    </div>
+
     <div *ngIf="order.fulfillment as snap" class="fulfillment-block">
-      <h3>Fulfillment plan</h3>
+      <h3>Fulfillment Result</h3>
+      <p class="muted small" *ngIf="order.status === 'cancelled'">
+        Order was cancelled — no stock was allocated during fulfillment.
+      </p>
       <p class="muted small" *ngIf="order.status === 'partially_fulfilled'">
-        Shortfall remains where today's total stock could not cover the order.
+        Shortfall remains where allocated stock could not cover the full order.
       </p>
 
       <div *ngFor="let dl of snap.detailLines" class="line-block">
@@ -98,7 +134,7 @@
           </li>
         </ul>
         <p class="muted small" *ngIf="dl.allocations.length === 0 && dl.requestedKg > 0">
-          No stock found for this product in today's inventory.
+          No stock was allocated for this product.
         </p>
       </div>
     </div>

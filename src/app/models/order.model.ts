@@ -23,6 +23,11 @@ export type LineFulfillmentDetail = {
   allocations: AllocationLine[];
 };
 
+export type OrderAssignmentSnapshot = {
+  allocatedAt: string;
+  detailLines: LineFulfillmentDetail[];
+};
+
 export type OrderFulfillmentSnapshot = {
   detailLines: LineFulfillmentDetail[];
   computedAt: string;
@@ -36,5 +41,6 @@ export type Order = {
   notes: string;
   status: OrderStatus;
   lineItems: OrderLineItem[];
+  assignment?: OrderAssignmentSnapshot;
   fulfillment?: OrderFulfillmentSnapshot;
 };
