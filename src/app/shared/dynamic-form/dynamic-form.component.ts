@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, DestroyRef, EventEmitter, Input, Output, ViewContainerRef } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, map, of, shareReplay } from 'rxjs';
@@ -26,6 +26,7 @@ export class DynamicFormComponent {
 
   config: DynamicFormConfig | null = null;
   form: FormGroup = new FormGroup({});
+  openSelectKey: string | null = null;
   private readonly optionsCache = new Map<string, Observable<SelectOption[]>>();
   private readonly todayMinDate = this.currentDateYmd();
 
@@ -34,10 +35,8 @@ export class DynamicFormComponent {
     private readonly configService: DynamicFormConfigService,
     private readonly http: HttpClient,
     private readonly destroyRef: DestroyRef,
-    private readonly vcr: ViewContainerRef,
     private readonly confirmationDialogService: ConfirmationDialogService
   ) {
-    this.confirmationDialogService.setViewContainerRef(vcr);
     this.configService.config$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((config) => {
@@ -57,6 +56,15 @@ export class DynamicFormComponent {
   addArrayItem(arrayField: ArrayFieldConfig): void {
     const array = this.getArray(arrayField.key);
     array.push(this.buildArrayItemGroup(arrayField));
+  }
+
+  hasArrayItemValue(itemGroup: AbstractControl): boolean {
+    if (!(itemGroup instanceof FormGroup)) return false;
+
+    return Object.values(itemGroup.controls).some((control) => {
+      const value = control.value;
+      return value !== null && value !== undefined && String(value).trim() !== '';
+    });
   }
 
   async removeArrayItem(arrayField: ArrayFieldConfig, index: number): Promise<void> {
@@ -88,6 +96,49 @@ export class DynamicFormComponent {
     return request$;
   }
 
+  selectKey(fieldKey: string, index?: number): string {
+    return index === undefined ? fieldKey : `${fieldKey}__${index}`;
+  }
+
+  toggleSelectMenu(selectKey: string, event: Event): void {
+    event.stopPropagation();
+    this.openSelectKey = this.openSelectKey === selectKey ? null : selectKey;
+  }
+
+  isSelectMenuOpen(selectKey: string): boolean {
+    return this.openSelectKey === selectKey;
+  }
+
+  chooseSelectOption(group: FormGroup, fieldKey: string, value: string): void {
+    const control = group.get(fieldKey) as FormControl | null;
+    if (!control) return;
+
+    control.setValue(value);
+    control.markAsTouched();
+    control.markAsDirty();
+    this.openSelectKey = null;
+  }
+
+  selectedOptionLabel(
+    group: FormGroup,
+    fieldKey: string,
+    options: SelectOption[],
+    placeholder: string
+  ): string {
+    const value = (group.get(fieldKey) as FormControl | null)?.value;
+    if (value === null || value === undefined || String(value).trim() === '') {
+      return placeholder;
+    }
+
+    const match = options.find((opt) => opt.value === String(value));
+    return match?.label ?? String(value);
+  }
+
+  @HostListener('document:click')
+  closeSelectMenus(): void {
+    this.openSelectKey = null;
+  }
+
   fieldError(field: BaseFieldConfig, group?: FormGroup): string | null {
     const control = (group ?? this.form).get(field.key) as FormControl | null;
     if (!control || !control.touched || !control.errors) return null;
@@ -104,6 +155,10 @@ export class DynamicFormComponent {
 
     if (control.errors['max']) {
       return validators.find((v) => v.name === 'max')?.message ?? 'Value is too large.';
+    }
+
+    if (control.errors['dateMin']) {
+      return 'Date cannot be in the past.';
     }
 
     return 'Invalid value.';
@@ -133,6 +188,10 @@ export class DynamicFormComponent {
     return type === 'date' ? this.todayMinDate : null;
   }
 
+  inputMax(type: string): string | null {
+    return type === 'date' ? '9999-12-31' : null;
+  }
+
   private buildForm(config: DynamicFormConfig): FormGroup {
     const group: Record<string, any> = {};
 
@@ -147,7 +206,7 @@ export class DynamicFormComponent {
 
         group[field.key] = array;
       } else {
-        group[field.key] = this.fb.control('', this.buildValidators(field.validators));
+        group[field.key] = this.fb.control('', this.buildValidators(field.validators, field.type));
       }
     }
 
@@ -158,21 +217,23 @@ export class DynamicFormComponent {
     const itemGroup: Record<string, any> = {};
 
     for (const field of arrayField.fields) {
-      itemGroup[field.key] = this.fb.control('', this.buildValidators(field.validators));
+      itemGroup[field.key] = this.fb.control('', this.buildValidators(field.validators, field.type));
     }
 
     return this.fb.group(itemGroup);
   }
 
-  private buildValidators(validators?: ValidatorsConfig[]): ValidatorFn[] {
-    if (!validators || validators.length === 0) return [];
-
+  private buildValidators(validators?: ValidatorsConfig[], fieldType?: string): ValidatorFn[] {
     const fns: ValidatorFn[] = [];
 
-    for (const v of validators) {
+    for (const v of validators ?? []) {
       if (v.name === 'required') fns.push(Validators.required);
       if (v.name === 'min' && typeof v.value === 'number') fns.push(Validators.min(v.value));
       if (v.name === 'max' && typeof v.value === 'number') fns.push(Validators.max(v.value));
+    }
+
+    if (fieldType === 'date') {
+      fns.push(this.dateNotBeforeTodayValidator());
     }
 
     return fns;
@@ -184,6 +245,34 @@ export class DynamicFormComponent {
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
+  }
+
+  private dateNotBeforeTodayValidator(): ValidatorFn {
+    return (control: AbstractControl) => {
+      const rawValue = control.value;
+      if (!rawValue) return null;
+
+      const normalized = this.normalizeDateValue(String(rawValue));
+      if (!normalized) return { dateMin: true };
+
+      return normalized < this.todayMinDate ? { dateMin: true } : null;
+    };
+  }
+
+  private normalizeDateValue(raw: string): string {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
+
+    const slashParts = raw.split('/');
+    if (slashParts.length === 3) {
+      const day = slashParts[0].padStart(2, '0');
+      const month = slashParts[1].padStart(2, '0');
+      const year = slashParts[2];
+      if (/^\d{4}$/.test(year)) {
+        return `${year}-${month}-${day}`;
+      }
+    }
+
+    return '';
   }
 
   hasArrayItems(): boolean {

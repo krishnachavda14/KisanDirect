@@ -37,7 +37,7 @@ export const orderFormConfig: DynamicFormConfig = {
       key: 'lineItems',
       type: 'array',
       label: 'Order items',
-      minItems: 1,
+      minItems: 0,
       addButtonText: 'Add item',
       removeButtonText: 'Remove item',
       itemLabel: 'Item',

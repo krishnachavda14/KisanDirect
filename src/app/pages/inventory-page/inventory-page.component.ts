@@ -83,6 +83,10 @@ export class InventoryPageComponent implements OnDestroy {
   }
 
   async onInventorySubmit(event: InventoryFormSubmit): Promise<void> {
+    if (!event.isValid) {
+      return;
+    }
+
     const date = this.normalizeDate(event.value.date);
     const entries = event.value.entries ?? [];
     const acceptedEntries: InventoryEntry[] = [];
@@ -99,6 +103,7 @@ export class InventoryPageComponent implements OnDestroy {
       const pricePerKg = Number(row.pricePerKg);
 
       if (!date) reasons.push('Date is required.');
+      else if (date < this.todayYmd()) reasons.push('Date cannot be in the past.');
       if (!row.farmerId) reasons.push('Farmer is required.');
       else if (!farmer) reasons.push('Farmer not found in master data.');
 

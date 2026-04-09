@@ -16,7 +16,7 @@ export const inventoryFormConfig: DynamicFormConfig = {
       key: 'entries',
       type: 'array',
       label: 'Farmer Product Entries',
-      minItems: 1,
+      minItems: 0,
       addButtonText: 'Add entry',
       removeButtonText: 'Remove',
       itemLabel: 'Entry',

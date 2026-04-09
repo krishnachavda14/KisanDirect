@@ -6,6 +6,10 @@ export class ConfirmationDialogService {
   private viewContainerRef: ViewContainerRef | null = null;
   private dialogInstance: ConfirmationDialogComponent | null = null;
 
+  setDialogInstance(instance: ConfirmationDialogComponent): void {
+    this.dialogInstance = instance;
+  }
+
   setViewContainerRef(vcr: ViewContainerRef): void {
     this.viewContainerRef = vcr;
   }

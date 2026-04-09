@@ -42,6 +42,7 @@
 .field {
   display: grid;
   gap: 6px;
+  align-content: start;
 }
 
 .label {
@@ -69,6 +70,68 @@
   font-size: 14px;
 }
 
+.select-shell {
+  position: relative;
+}
+
+.select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  cursor: pointer;
+}
+
+.select-trigger.placeholder {
+  color: #6b7f74;
+}
+
+.chevron {
+  margin-left: 8px;
+  color: #486050;
+  transition: transform 0.2s ease;
+  font-size: 12px;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.select-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid #c8ddd0;
+  border-radius: 12px;
+  background: #f8fdf9;
+  box-shadow: 0 16px 26px rgba(29, 74, 49, 0.16);
+  padding: 6px;
+}
+
+.select-option {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  color: #274636;
+  font-size: 14px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.select-option:hover {
+  background: #eaf6ee;
+}
+
+.select-option.placeholder-option {
+  color: #6b7f74;
+}
+
 @media (max-width: 768px) {
   .control {
     height: 36px;
@@ -85,6 +148,12 @@
 .error {
   color: #b42318;
   font-size: 12px;
+  min-height: 16px;
+  line-height: 16px;
+}
+
+.error-placeholder {
+  visibility: hidden;
 }
 
 .actions {
@@ -200,6 +269,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
+  align-items: start;
 }
 
 @media (max-width: 1200px) {

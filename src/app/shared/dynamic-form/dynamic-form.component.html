@@ -30,6 +30,7 @@
                   <button
                     type="button"
                     class="btn danger"
+                    *ngIf="hasArrayItemValue(asFormGroup(itemGroup))"
                     (click)="removeArrayItem(field, i)"
                   >
                     {{ field.removeButtonText || 'Remove' }}
@@ -46,19 +47,40 @@
 
                       <!-- child: select -->
                       <ng-container *ngIf="child.type === 'select'; else childInput">
-                        <select
-                          class="control"
-                          [id]="field.key + '_' + i + '_' + child.key"
-                          [formControlName]="child.key"
-                        >
-                          <option value="">{{ child.placeholder || 'Select' }}</option>
-                          <option
-                            *ngFor="let opt of (selectOptions$(child.options) | async)"
-                            [value]="opt.value"
-                          >
-                            {{ opt.label }}
-                          </option>
-                        </select>
+                        <ng-container *ngIf="(selectOptions$(child.options) | async) as options">
+                          <div class="select-shell" (click)="$event.stopPropagation()">
+                            <button
+                              type="button"
+                              class="control select-trigger"
+                              [id]="field.key + '_' + i + '_' + child.key"
+                              [class.placeholder]="!(asFormGroup(itemGroup).get(child.key)?.value)"
+                              (click)="toggleSelectMenu(selectKey(field.key + '_' + child.key, i), $event)"
+                            >
+                              <span>
+                                {{ selectedOptionLabel(asFormGroup(itemGroup), child.key, options, child.placeholder || 'Select') }}
+                              </span>
+                              <span class="chevron" [class.open]="isSelectMenuOpen(selectKey(field.key + '_' + child.key, i))">▾</span>
+                            </button>
+
+                            <div class="select-menu" *ngIf="isSelectMenuOpen(selectKey(field.key + '_' + child.key, i))">
+                              <button
+                                type="button"
+                                class="select-option placeholder-option"
+                                (click)="chooseSelectOption(asFormGroup(itemGroup), child.key, '')"
+                              >
+                                {{ child.placeholder || 'Select' }}
+                              </button>
+                              <button
+                                type="button"
+                                class="select-option"
+                                *ngFor="let opt of options"
+                                (click)="chooseSelectOption(asFormGroup(itemGroup), child.key, opt.value)"
+                              >
+                                {{ opt.label }}
+                              </button>
+                            </div>
+                          </div>
+                        </ng-container>
                       </ng-container>
 
                       <!-- child: input -->
@@ -68,6 +90,7 @@
                           [id]="field.key + '_' + i + '_' + child.key"
                           [type]="child.type"
                           [attr.min]="inputMin(child.type)"
+                          [attr.max]="inputMax(child.type)"
                           [placeholder]="child.placeholder || ''"
                           [formControlName]="child.key"
                         />
@@ -76,6 +99,7 @@
                       <ng-container *ngIf="fieldError(child, asFormGroup(itemGroup)) as err">
                         <div class="error">{{ err }}</div>
                       </ng-container>
+                      <div class="error error-placeholder" *ngIf="!fieldError(child, asFormGroup(itemGroup))"></div>
                     </div>
                   </ng-container>
                 </div>
@@ -91,15 +115,38 @@
             </label>
 
             <ng-container *ngIf="field.type === 'select'; else normalInput">
-              <select class="control" [id]="field.key" [formControlName]="field.key">
-                <option value="">{{ field.placeholder || 'Select' }}</option>
-                <option
-                  *ngFor="let opt of (selectOptions$(field.options) | async)"
-                  [value]="opt.value"
-                >
-                  {{ opt.label }}
-                </option>
-              </select>
+              <ng-container *ngIf="(selectOptions$(field.options) | async) as options">
+                <div class="select-shell" (click)="$event.stopPropagation()">
+                  <button
+                    type="button"
+                    class="control select-trigger"
+                    [id]="field.key"
+                    [class.placeholder]="!(asFormGroup(form).get(field.key)?.value)"
+                    (click)="toggleSelectMenu(selectKey(field.key), $event)"
+                  >
+                    <span>{{ selectedOptionLabel(asFormGroup(form), field.key, options, field.placeholder || 'Select') }}</span>
+                    <span class="chevron" [class.open]="isSelectMenuOpen(selectKey(field.key))">▾</span>
+                  </button>
+
+                  <div class="select-menu" *ngIf="isSelectMenuOpen(selectKey(field.key))">
+                    <button
+                      type="button"
+                      class="select-option placeholder-option"
+                      (click)="chooseSelectOption(asFormGroup(form), field.key, '')"
+                    >
+                      {{ field.placeholder || 'Select' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="select-option"
+                      *ngFor="let opt of options"
+                      (click)="chooseSelectOption(asFormGroup(form), field.key, opt.value)"
+                    >
+                      {{ opt.label }}
+                    </button>
+                  </div>
+                </div>
+              </ng-container>
             </ng-container>
 
             <ng-template #normalInput>
@@ -108,6 +155,7 @@
                 [id]="field.key"
                 [type]="field.type"
                 [attr.min]="inputMin(field.type)"
+                [attr.max]="inputMax(field.type)"
                 [placeholder]="field.placeholder || ''"
                 [formControlName]="field.key"
               />
@@ -116,6 +164,7 @@
             <ng-container *ngIf="fieldError(field) as err">
               <div class="error">{{ err }}</div>
             </ng-container>
+            <div class="error error-placeholder" *ngIf="!fieldError(field)"></div>
           </div>
         </ng-container>
       </div>
