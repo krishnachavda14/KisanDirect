@@ -30,7 +30,6 @@
                   <button
                     type="button"
                     class="btn danger"
-                    *ngIf="hasArrayItemValue(asFormGroup(itemGroup))"
                     (click)="removeArrayItem(field, i)"
                   >
                     {{ field.removeButtonText || 'Remove' }}

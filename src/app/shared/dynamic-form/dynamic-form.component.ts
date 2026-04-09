@@ -58,15 +58,6 @@ export class DynamicFormComponent {
     array.push(this.buildArrayItemGroup(arrayField));
   }
 
-  hasArrayItemValue(itemGroup: AbstractControl): boolean {
-    if (!(itemGroup instanceof FormGroup)) return false;
-
-    return Object.values(itemGroup.controls).some((control) => {
-      const value = control.value;
-      return value !== null && value !== undefined && String(value).trim() !== '';
-    });
-  }
-
   async removeArrayItem(arrayField: ArrayFieldConfig, index: number): Promise<void> {
     const shouldRemove = await this.confirmationDialogService.confirm(this.removeConfirmMessage);
     if (!shouldRemove) return;
